@@ -1,6 +1,7 @@
 'use client';
 
 import MessageList from '@/components/chat/message_list';
+import TemplateSection from '@/components/templates/template-section';
 import ModeToggle from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,10 +10,11 @@ import { useChat } from '@ai-sdk/react';
 import { Send } from 'lucide-react';
 
 export default function Home() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    maxSteps: 5,
-    experimental_throttle: 100,
-  });
+  const { messages, input, setInput, handleInputChange, handleSubmit } =
+    useChat({
+      maxSteps: 5,
+      experimental_throttle: 100,
+    });
 
   const generating = messages.length > 0;
 
@@ -28,20 +30,23 @@ export default function Home() {
         )}
       >
         <ModeToggle />
-        <div className='w-[90vw] md:w-[800px]'>
+        <div className='w-[90vw] md:w-[900px]'>
           <div
-            className={cn('flex flex-col', {
-              'h-[calc(100vh-200px)] overflow-y-auto p-2 mb-4 gap-6':
-                generating,
-            })}
+            className={cn(
+              'flex flex-col h-[calc(100vh-200px)] overflow-y-auto p-2 mb-4 gap-6',
+              {}
+            )}
           >
             {generating ? (
               <MessageList messages={messages} />
             ) : (
-              <h1 className='text-slate-800 dark:text-slate-300 text-3xl text-center font-bold mb-6'>
-                Data Mocking Made Simple <br />
-                How can I help ?
-              </h1>
+              <div className='h-full'>
+                <h1 className='text-slate-800  dark:text-slate-300 text-3xl text-center font-bold mb-16'>
+                  Data Mocking Made Simple <br />
+                  How can I help ?
+                </h1>
+                <TemplateSection handleInputChange={setInput} />
+              </div>
             )}
           </div>
           <form

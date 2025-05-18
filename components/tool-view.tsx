@@ -3,6 +3,7 @@ import React from 'react';
 import RunCodeToolView from './toolViews/run-code';
 import SchemaView from './toolViews/schema_view';
 import FileDownload from './toolViews/file-download';
+import Loader from './toolViews/schem-view-loader';
 
 interface ToolViewProps {
   toolInvocation: ToolInvocation;
@@ -21,7 +22,7 @@ export default function ToolView({ toolInvocation }: ToolViewProps) {
     if (toolInvocation?.state === 'result') {
       return <SchemaView schema={toolInvocation?.result} />;
     } else {
-      return <div>Generating schema...</div>;
+      return <Loader />;
     }
   }
   if (toolInvocation.toolName === ToolName.UPLOADTOSTORAGE) {

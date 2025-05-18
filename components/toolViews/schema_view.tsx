@@ -28,12 +28,15 @@ interface Schema {
 
 export default function SchemaView({ schema }: { schema: Schema }) {
   return (
-    <div className='grid grid-cols-3 gap-4'>
-      {schema?.tables?.map((table: TableView, index: number) => (
-        <div key={index} className='col-span-1'>
-          <TableView table={table} />
-        </div>
-      ))}
+    <div className='p-6 mb-8 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm'>
+      <h2 className='text-2xl font-bold mb-4'>Database Schema</h2>
+      <div className='grid grid-cols-3 gap-4'>
+        {schema?.tables?.map((table: TableView, index: number) => (
+          <div key={index} className='col-span-1'>
+            <TableView table={table} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
