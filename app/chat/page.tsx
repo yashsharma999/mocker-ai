@@ -1,27 +1,20 @@
 'use client';
 
+import MessageList from '@/components/chat/message_list';
 import ModeToggle from '@/components/theme-toggle';
-import ToolView from '@/components/tool-view';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import Markdown from 'react-markdown';
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     maxSteps: 5,
+    experimental_throttle: 100,
   });
 
-  const [generating, setGenerating] = useState(false);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      setGenerating(true);
-    }
-  }, [messages]);
+  const generating = messages.length > 0;
 
   return (
     <div>
@@ -43,40 +36,7 @@ export default function Home() {
             })}
           >
             {generating ? (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={cn('whitespace-pre-wrap px-4', {
-                    'bg-gray-100 p-4 dark:bg-gray-800 rounded-lg mb-4 w-[70%] text-left self-end':
-                      message.role === 'user',
-                  })}
-                >
-                  {/* <div className='h-fit rounded-md flex items-center justify-center'>
-                    {message.role === 'user' ? (
-                      <UserIcon className='mt-1 w-6 h-6 text-purple-500' />
-                    ) : (
-                      <BotIcon className='mt-1 w-6 h-6 text-purple-500' />
-                    )}
-                  </div> */}
-                  {message.parts.map((part, i) => {
-                    switch (part.type) {
-                      case 'text':
-                        return (
-                          <Markdown key={`${message.id}-${i}`}>
-                            {part.text}
-                          </Markdown>
-                        );
-                      case 'tool-invocation':
-                        return (
-                          <ToolView
-                            toolInvocation={part.toolInvocation}
-                            key={`${message.id}-${i}`}
-                          />
-                        );
-                    }
-                  })}
-                </div>
-              ))
+              <MessageList messages={messages} />
             ) : (
               <h1 className='text-slate-800 dark:text-slate-300 text-3xl text-center font-bold mb-6'>
                 Data Mocking Made Simple <br />

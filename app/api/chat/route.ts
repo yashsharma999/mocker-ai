@@ -1,8 +1,10 @@
 import { openai } from '@ai-sdk/openai';
 import Sandbox from '@e2b/code-interpreter';
-import { streamText } from 'ai';
+import { generateObject, streamText } from 'ai';
 import { z } from 'zod';
+
 import { put } from '@vercel/blob';
+import { dataSchema } from '../generate_schema/schema';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -16,6 +18,25 @@ export async function POST(req: Request) {
     system: SystemPrompt,
     messages,
     tools: {
+      generateSchema: {
+        description: 'Generate a data schema for the given user input',
+        parameters: z.object({
+          userContext: z
+            .string()
+            .describe('The business context that the user gave.'),
+        }),
+        execute: async ({ userContext }) => {
+          const { object } = await generateObject({
+            model: openai('gpt-4o-mini'),
+            schema: dataSchema,
+            prompt:
+              `Generate data schema for the following user requirement: ` +
+              userContext,
+            maxTokens: 1000,
+          });
+          return object;
+        },
+      },
       runCode: {
         description:
           'Execute python code in a Jupyter notebook cell and return result',
@@ -25,27 +46,33 @@ export async function POST(req: Request) {
             .describe('The python code to execute in a single cell'),
         }),
         execute: async ({ code }) => {
-          // Create a sandbox, execute LLM-generated code, and return the result
-          console.log('Executing code', code);
-          const sandbox = await Sandbox.create({
-            metadata: {
-              userID,
-            },
-            timeoutMs: 60_000, // 1 minute in ms
-          });
+          try {
+            console.log('Running code:', code);
+            const sandbox = await Sandbox.create({
+              metadata: {
+                userID,
+              },
+              timeoutMs: 120_000, // 2 minutes in ms
+            });
 
-          const { text, results, logs, error } = await sandbox.runCode(code);
-          console.log(text, results, logs, error);
+            await sandbox.commands.run('pip install faker'); // This will install the faker package
+            await sandbox.commands.run('pip install openpyxl'); // This will install the openpyxl package
 
-          return {
-            text,
-            results,
-            logs,
-            error,
-          };
+            const { text, results, logs, error } = await sandbox.runCode(code);
+
+            return {
+              text,
+              results,
+              logs,
+              error,
+            };
+          } catch (error) {
+            console.error('Error running code:', error);
+            throw new Error('Failed to run code');
+          }
         },
       },
-      uploadTos3: {
+      uploadToStorage: {
         description:
           'Upload a given file to Vercel Blob storage and return the file path and content',
         parameters: z.object({
@@ -59,19 +86,28 @@ export async function POST(req: Request) {
           })?.sandboxId;
 
           if (sbxId) {
-            const sandbox = await Sandbox.connect(sbxId);
+            try {
+              const sandbox = await Sandbox.connect(sbxId);
 
-            const file = await sandbox.files.read(filePath);
-            const fileName = filePath.split('/').pop() || 'DataFile';
+              const file = await sandbox.files.read(filePath, {
+                format: 'bytes',
+              });
 
-            // Mock upload to S3 or any other storage
-            const blob = await put(fileName, file, {
-              access: 'public',
-            });
+              const fileName = filePath.split('/').pop() || 'DataFile';
 
-            return {
-              filePath: blob.downloadUrl,
-            };
+              // Mock upload to S3 or any other storage
+              const blob = await put(fileName, Buffer.from(file), {
+                access: 'public',
+                addRandomSuffix: true,
+              });
+
+              return {
+                filePath: blob.downloadUrl,
+              };
+            } catch (error) {
+              console.error('Error uploading file:', error);
+              throw new Error('Failed to upload file');
+            }
           } else {
             throw new Error('Sandbox not found');
           }
@@ -85,22 +121,31 @@ export async function POST(req: Request) {
 
 const SystemPrompt = `
 You are an expert data mocking assistant.
-Generate Python code to mock data for the given user input.
-Before generating the code, ask the user for the following:
-1. Confirm the columns and data types for the mock data.
-2. Confirm the number of rows of data to generate.
-3. Confirm the format of the data file if already not provided (CSV, Excel, etc.).
+Your task is to generate a data schema and then generate python code to mock data for the given user input.
+The data generated should be as realistic as possible, use the Fake data library to generate the data.
 
-Generate additional code to create the requested data file
-in the system and return the file path.
+## CRITICAL : Do not show the generated schema to the user.
 
-So, if the user asks for a CSV file,
-generate the code to create a CSV file and return the file path.
+Ask the user for confirmation on the generated schema before proceeding to generate the code.
+Also, ask the user to confirm the type of file they want to store the generated data in (CSV or Excel).
 
-If the user asks for an Excel file,
-generate the code to create an Excel file and return the file path.
-
-Now, this file path will be used to upload the file to S3.
-
-Final result should be the s3 file path.
+If the user confirms, generate and execute the code block to mock data and store the generated data in the given file formats.
+### IMPORTANT: Upload all the files to Vercel Blob storage and return the respective download URLs
 `;
+
+// const { text, results, logs, error } = await sandbox.runCode(`
+//   import pandas as pd
+
+//   # Replace this path with the actual path to your Excel file
+//   file_path = "${filePath}"
+
+//   # Read the Excel file
+//   df = pd.read_excel(file_path)
+
+//   # Display basic info
+//   print("Columns:", df.columns.tolist())
+//   print("Shape:", df.shape)
+//   print(df.head())
+// `);
+
+// console.log('File content:', text, results, logs, error);
