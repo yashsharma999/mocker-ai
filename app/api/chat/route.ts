@@ -5,13 +5,14 @@ import { z } from 'zod';
 
 import { put } from '@vercel/blob';
 import { dataSchema } from '../generate_schema/schema';
+import { prisma } from '@/lib/prisma';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-  const userID = 'yashsharma@22#';
+  const userID = 'cmatx329u0000pf9aiglm228m';
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
@@ -99,6 +100,15 @@ export async function POST(req: Request) {
               const blob = await put(fileName, Buffer.from(file), {
                 access: 'public',
                 addRandomSuffix: true,
+              });
+
+              await prisma.dataSource.create({
+                data: {
+                  name: fileName,
+                  type: filePath.split('.').pop() || 'csv',
+                  url: blob.downloadUrl,
+                  userId: userID,
+                },
               });
 
               return {
