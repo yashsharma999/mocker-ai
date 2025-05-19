@@ -32,16 +32,16 @@ export default function Home() {
         <ModeToggle />
         <div className='w-[90vw] md:w-[900px]'>
           <div
-            className={cn(
-              'flex flex-col h-[calc(100vh-200px)] overflow-y-auto p-2 mb-4 gap-6',
-              {}
-            )}
+            className={cn('flex flex-col', {
+              'h-[calc(100vh-200px)] overflow-y-auto p-2 mb-4 gap-6':
+                generating,
+            })}
           >
             {generating ? (
               <MessageList messages={messages} />
             ) : (
-              <div className='h-full'>
-                <h1 className='text-slate-800  dark:text-slate-300 text-3xl text-center font-bold mb-16'>
+              <div className='flex flex-col items-center justify-center mb-8 gap-4'>
+                <h1 className='text-slate-800  dark:text-slate-300 text-3xl text-center font-bold '>
                   Data Mocking Made Simple <br />
                   How can I help ?
                 </h1>
