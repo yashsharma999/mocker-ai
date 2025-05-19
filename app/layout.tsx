@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import localFont from 'next/font/local';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -26,7 +28,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SidebarProvider defaultOpen={false}>
+            <main className='w-full'>{children}</main>
+            <SidebarTrigger size={'lg'} />
+            <AppSidebar />
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

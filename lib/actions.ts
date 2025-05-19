@@ -1,4 +1,4 @@
-'user server';
+'use server';
 
 import { prisma } from './prisma';
 
@@ -16,3 +16,29 @@ export async function createUser() {
     console.error('Error creating user:', error);
   }
 }
+
+// export async function getDataSourcesForUser(userId: string) {
+//   try {
+//     const dataSources = await prisma.dataSource.findMany({
+//       where: {
+//         userId: userId,
+//       },
+//       orderBy: {
+//         createdAt: 'desc',
+//       },
+//       select: {
+//         id: true,
+//         name: true,
+//         type: true,
+//         url: true,
+//         createdAt: true,
+//         updatedAt: true,
+//       },
+//     });
+
+//     return { data: dataSources };
+//   } catch (error) {
+//     console.error('Failed to fetch data sources:', error);
+//     return { error: 'Failed to fetch data sources' };
+//   }
+// }

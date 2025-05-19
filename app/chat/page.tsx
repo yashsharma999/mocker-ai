@@ -22,7 +22,7 @@ export default function Home() {
     <div>
       <div
         className={cn(
-          'flex flex-col items-center justify-center p-24 bg-white h-screen dark:bg-gray-900 text-black dark:text-white',
+          'flex flex-col items-center justify-center p-24 bg-white h-screen dark:bg-[var(--background)] text-black dark:text-white',
           {
             'justify-end pb-4 h-full max-h-screen transition-all ease-in duration-200 ':
               generating,
