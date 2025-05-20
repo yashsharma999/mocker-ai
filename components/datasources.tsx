@@ -1,6 +1,6 @@
 'use client';
 
-import { baseUrl, fetcher } from '@/lib/constants';
+import { fetcher } from '@/lib/constants';
 import {
   SidebarMenu,
   SidebarMenuAction,
@@ -28,7 +28,7 @@ interface DataSource {
 
 export default function DataSources() {
   const { data, error } = useSWR(
-    `${baseUrl}/api/datasource?userId=cmatx329u0000pf9aiglm228m`,
+    `/api/datasource?userId=cmatx329u0000pf9aiglm228m`,
     fetcher
   );
 
