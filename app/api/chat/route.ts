@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { put } from '@vercel/blob';
 import { dataSchema } from '../generate_schema/schema';
 import { prisma } from '@/lib/prisma';
-import { revalidateTag } from 'next/cache';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -111,8 +110,6 @@ export async function POST(req: Request) {
                   userId: userID,
                 },
               });
-
-              revalidateTag('datasources');
 
               return {
                 filePath: blob.downloadUrl,

@@ -1,4 +1,6 @@
-import { baseUrl } from '@/lib/constants';
+'use client';
+
+import { baseUrl, fetcher } from '@/lib/constants';
 import {
   SidebarMenu,
   SidebarMenuAction,
@@ -13,6 +15,7 @@ import {
 } from './ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import CopyUrl from './copy-url';
+import useSWR from 'swr';
 
 interface DataSource {
   id: string;
@@ -23,23 +26,15 @@ interface DataSource {
   updatedAt: string;
 }
 
-const getDatasouces = async () => {
-  try {
-    const resp = await fetch(
-      `${baseUrl}/api/datasource?userId=cmatx329u0000pf9aiglm228m`,
-      {
-        next: { tags: ['datasources'] },
-      }
-    );
-    const data = await resp.json();
-    return data;
-  } catch (err) {
-    console.log('err', err);
-  }
-};
+export default function DataSources() {
+  const { data, error } = useSWR(
+    `${baseUrl}/api/datasource?userId=cmatx329u0000pf9aiglm228m`,
+    fetcher
+  );
 
-export default async function DataSources() {
-  const data = await getDatasouces();
+  if (error) {
+    return <div>Error loading data sources</div>;
+  }
 
   return (
     <SidebarMenu>

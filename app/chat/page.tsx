@@ -5,15 +5,20 @@ import TemplateSection from '@/components/templates/template-section';
 import ModeToggle from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { baseUrl } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { Send } from 'lucide-react';
+import { mutate } from 'swr';
 
 export default function Home() {
   const { messages, input, setInput, handleInputChange, handleSubmit } =
     useChat({
       maxSteps: 5,
       experimental_throttle: 100,
+      onFinish: () => {
+        mutate(`${baseUrl}/api/datasource?userId=cmatx329u0000pf9aiglm228m`);
+      },
     });
 
   const generating = messages.length > 0;
