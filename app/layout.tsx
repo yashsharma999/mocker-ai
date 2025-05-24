@@ -7,6 +7,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import SettingsToggle from '@/components/settings';
 import { Toaster } from '@/components/ui/sonner';
 import { ClerkProvider, UserButton } from '@clerk/nextjs';
+import ModeToggle from '@/components/theme-toggle';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -33,6 +34,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <SidebarProvider defaultOpen={false}>
+              <ModeToggle />
               <div className='fixed top-0 left-0 p-4'>
                 <UserButton />
               </div>

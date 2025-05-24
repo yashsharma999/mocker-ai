@@ -1,8 +1,8 @@
 'use client';
 
 import MessageList from '@/components/chat/message_list';
+import NewChatButton from '@/components/new-chat';
 import TemplateSection from '@/components/templates/template-section';
-import ModeToggle from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { subtractUserCredits } from '@/lib/actions';
@@ -40,7 +40,7 @@ export default function Home() {
           }
         )}
       >
-        <ModeToggle />
+        <NewChatButton />
         <div className='w-[90vw] md:w-[900px]'>
           <div
             className={cn('flex flex-col', {
