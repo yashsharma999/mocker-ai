@@ -7,16 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
-import { Send } from 'lucide-react';
+import { useAuth } from '@clerk/nextjs';
+import { AlertCircle, Send } from 'lucide-react';
 import { mutate } from 'swr';
 
 export default function Home() {
-  const { messages, input, setInput, handleInputChange, handleSubmit } =
+  const { userId } = useAuth();
+  const { messages, input, setInput, handleInputChange, handleSubmit, error } =
     useChat({
       maxSteps: 5,
       experimental_throttle: 100,
       onFinish: () => {
-        mutate(`/api/datasource?userId=cmatx329u0000pf9aiglm228m`);
+        mutate(`/api/datasource?userId=${userId}`);
       },
     });
 
@@ -50,6 +52,20 @@ export default function Home() {
                   How can I help ?
                 </h1>
                 <TemplateSection handleInputChange={setInput} />
+              </div>
+            )}
+            {error && (
+              <div className='flex flex-col items-center justify-center mb-8 gap-3'>
+                <div className='flex items-start gap-3 bg-amber-100 text-amber-800 px-4 py-3 rounded-lg shadow-sm max-w-md'>
+                  <AlertCircle className='w-5 h-5 mt-0.5' />
+                  <div>
+                    <h1 className='text-base font-semibold'>{error.message}</h1>
+                    <p className='text-sm mt-1'>
+                      You must be logged in or provide your own API key to
+                      process this request.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>

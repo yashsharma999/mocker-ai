@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("POSTGRES_URL") // uses connection pooling
+  url = env("POSTGRES_URL_NON_POOLING") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -15,9 +15,11 @@ model User {
   id          String       @id @default(cuid())
   email       String       @unique
   name        String?
+  clerkId     String       @unique
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   dataSources DataSource[]
+  credits     Credits?
 }
 
 model DataSource {
@@ -28,6 +30,17 @@ model DataSource {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Credits {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  amount    Int      @default(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId])

@@ -16,6 +16,8 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import CopyUrl from './copy-url';
 import useSWR from 'swr';
+import { Skeleton } from './ui/skeleton';
+import { useAuth } from '@clerk/nextjs';
 
 interface DataSource {
   id: string;
@@ -27,13 +29,28 @@ interface DataSource {
 }
 
 export default function DataSources() {
-  const { data, error } = useSWR(
-    `/api/datasource?userId=cmatx329u0000pf9aiglm228m`,
+  const { userId } = useAuth();
+  const { data, error, isLoading } = useSWR(
+    `/api/datasource?userId=${userId}`,
     fetcher
   );
 
   if (error) {
     return <div>Error loading data sources</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <SidebarMenu className='gap-4'>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <SidebarMenuItem key={index}>
+            <SidebarMenuButton asChild>
+              <Skeleton className='h-5' />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    );
   }
 
   return (

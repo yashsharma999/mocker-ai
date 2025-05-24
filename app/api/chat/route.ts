@@ -6,13 +6,19 @@ import { z } from 'zod';
 import { put } from '@vercel/blob';
 import { dataSchema } from '../generate_schema/schema';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs/server';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-  const userID = 'cmatx329u0000pf9aiglm228m';
+  const { userId } = await auth();
+
+  if (!userId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+  console.log('auth object:', userId);
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
@@ -51,7 +57,7 @@ export async function POST(req: Request) {
             console.log('Running code:', code);
             const sandbox = await Sandbox.create({
               metadata: {
-                userID,
+                userId: userId as string,
               },
               timeoutMs: 120_000, // 2 minutes in ms
             });
@@ -83,7 +89,7 @@ export async function POST(req: Request) {
           const runningSandboxes = await Sandbox.list();
 
           const sbxId = runningSandboxes.find((sandbox) => {
-            return sandbox.metadata.userID === userID;
+            return sandbox.metadata.userId === userId;
           })?.sandboxId;
 
           if (sbxId) {
@@ -107,7 +113,7 @@ export async function POST(req: Request) {
                   name: fileName,
                   type: filePath.split('.').pop() || 'csv',
                   url: blob.downloadUrl,
-                  userId: userID,
+                  userId: userId as string,
                 },
               });
 
@@ -142,20 +148,3 @@ Also, ask the user to confirm the type of file they want to store the generated 
 If the user confirms, generate and execute the code block to mock data and store the generated data in the given file formats.
 ### IMPORTANT: Upload all the files to Vercel Blob storage and return the respective download URLs
 `;
-
-// const { text, results, logs, error } = await sandbox.runCode(`
-//   import pandas as pd
-
-//   # Replace this path with the actual path to your Excel file
-//   file_path = "${filePath}"
-
-//   # Read the Excel file
-//   df = pd.read_excel(file_path)
-
-//   # Display basic info
-//   print("Columns:", df.columns.tolist())
-//   print("Shape:", df.shape)
-//   print(df.head())
-// `);
-
-// console.log('File content:', text, results, logs, error);

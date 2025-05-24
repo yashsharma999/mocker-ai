@@ -4,6 +4,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 import localFont from 'next/font/local';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
+import SettingsToggle from '@/components/settings';
+import { Toaster } from '@/components/ui/sonner';
+import { ClerkProvider, UserButton } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -20,21 +23,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <body className={`${myFont.className} antialiased`}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider defaultOpen={false}>
-            <main className='w-full'>{children}</main>
-            <SidebarTrigger size={'lg'} />
-            <AppSidebar />
-          </SidebarProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang='en' suppressHydrationWarning>
+        <body className={`${myFont.className} antialiased`}>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider defaultOpen={false}>
+              <div className='fixed top-0 left-0 p-4'>
+                <UserButton />
+              </div>
+              <SettingsToggle />
+              <main className='w-full'>{children}</main>
+              <Toaster />
+              <SidebarTrigger size={'lg'} />
+              <AppSidebar />
+            </SidebarProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
