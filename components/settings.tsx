@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CustomKeyManager } from './key-manager';
 import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
+import CurrentCredits from './current_credits';
 
 export default function SettingsToggle() {
   const { isSignedIn } = useUser();
@@ -34,6 +35,9 @@ export default function SettingsToggle() {
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <LogIn className='h-2 w-2' />
             {isSignedIn ? <SignOutButton /> : <SignInButton mode='modal' />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <CurrentCredits />
           </DropdownMenuItem>
           {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <UserButton />

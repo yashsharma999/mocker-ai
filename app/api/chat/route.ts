@@ -13,12 +13,28 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-  const { userId } = await auth();
+  const { userId: clerkId } = await auth();
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId: clerkId || '' },
+    select: { id: true },
+  });
+  const userId = user?.id;
 
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
-  console.log('auth object:', userId);
+
+  //check credits
+  const credits = await prisma.credits.findUnique({
+    where: { userId: userId },
+    select: { amount: true },
+  });
+  if (!credits || credits.amount <= 0) {
+    return new Response('Insufficient credits, please contact support.', {
+      status: 402,
+    });
+  }
 
   const result = streamText({
     model: openai('gpt-4o-mini'),

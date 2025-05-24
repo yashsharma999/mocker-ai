@@ -3,7 +3,13 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const userId = url.searchParams.get('userId');
+    const clerkId = url.searchParams.get('clerkId');
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkId || '' },
+      select: { id: true },
+    });
+    const userId = user?.id;
 
     if (!userId) {
       return new Response('User ID is required', { status: 400 });

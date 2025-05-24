@@ -31,7 +31,7 @@ interface DataSource {
 export default function DataSources() {
   const { userId } = useAuth();
   const { data, error, isLoading } = useSWR(
-    `/api/datasource?userId=${userId}`,
+    `/api/datasource?clerkId=${userId}`,
     fetcher
   );
 

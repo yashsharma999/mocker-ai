@@ -5,6 +5,7 @@ import TemplateSection from '@/components/templates/template-section';
 import ModeToggle from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { subtractUserCredits } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { useAuth } from '@clerk/nextjs';
@@ -18,7 +19,11 @@ export default function Home() {
       maxSteps: 5,
       experimental_throttle: 100,
       onFinish: () => {
-        mutate(`/api/datasource?userId=${userId}`);
+        mutate(`/api/datasource?clerkId=${userId}`);
+        subtractUserCredits({
+          clerkUserId: userId || '',
+          creditsToSubtract: 5,
+        });
       },
     });
 

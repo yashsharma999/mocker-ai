@@ -74,4 +74,16 @@ const templates = [
       'Generate synthetic HR datasets for workforce analytics, onboarding systems, or compliance testing — include employee demographics, job roles, salaries, promotion history, and performance reviews.',
     tags: ['HR', 'Employee'],
   },
+  {
+    name: 'Manufacturing Plant Energy Consumption',
+    description:
+      'Generate synthetic energy usage data for large-scale manufacturing operations — include equipment-level consumption, shift-wise usage patterns, peak load times, energy source breakdowns (e.g., electricity, gas, solar), and seasonal or production-driven fluctuations for use in energy optimization, sustainability tracking, and predictive maintenance.',
+    tags: ['Energy', 'Manufacturing'],
+  },
+  {
+    name: 'Urban Mobility & Traffic Patterns',
+    description:
+      'Generate synthetic data for urban transportation systems — simulate vehicle movements, public transit usage, ride-hailing demand, congestion zones, and accident hotspots across different times of day and weather conditions. Useful for smart city planning, route optimization, and traffic management simulations.',
+    tags: ['Mobility', 'Smart City'],
+  },
 ];
