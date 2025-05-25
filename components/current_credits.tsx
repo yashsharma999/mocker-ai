@@ -1,4 +1,5 @@
 import { fetcher } from '@/lib/constants';
+import useByok from '@/lib/hooks/useByok';
 import { useAuth } from '@clerk/nextjs';
 import { Sparkles } from 'lucide-react';
 import React from 'react';
@@ -6,7 +7,13 @@ import useSWR from 'swr';
 
 export default function CurrentCredits() {
   const { userId } = useAuth();
-  const { data } = useSWR(`/api/credits?clerkId=${userId}`, fetcher);
+  const { byokUserId } = useByok();
+  const { data } = useSWR(
+    byokUserId || userId
+      ? `/api/credits?clerkId=${byokUserId || userId}`
+      : null,
+    fetcher
+  );
 
   if (!data) {
     return null;
@@ -22,7 +29,7 @@ export default function CurrentCredits() {
           AI Credits
         </span>
         <span className='text-sm font-semibold text-gray-900 dark:text-white'>
-          {`${data?.amount || 0} / 1000`}
+          {byokUserId ? '∞' : `${data?.amount || 0} / 1000`}
         </span>
       </div>
     </div>

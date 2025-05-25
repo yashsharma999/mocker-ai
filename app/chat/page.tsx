@@ -6,14 +6,18 @@ import TemplateSection from '@/components/templates/template-section';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { subtractUserCredits } from '@/lib/actions';
+import { BYOK_API_KEY } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { useAuth } from '@clerk/nextjs';
 import { AlertCircle, Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { mutate } from 'swr';
 
 export default function Home() {
   const { userId } = useAuth();
+  const [byokKey, setByokKey] = useState('');
+
   const { messages, input, setInput, handleInputChange, handleSubmit, error } =
     useChat({
       maxSteps: 5,
@@ -25,9 +29,19 @@ export default function Home() {
           creditsToSubtract: 5,
         });
       },
+      body: {
+        byok: byokKey,
+      },
     });
 
   const generating = messages.length > 0;
+
+  useEffect(() => {
+    // Access localStorage safely in useEffect
+    if (window.localStorage) {
+      setByokKey(localStorage?.getItem(BYOK_API_KEY) || '');
+    }
+  }, []);
 
   return (
     <div>
@@ -64,11 +78,8 @@ export default function Home() {
                 <div className='flex items-start gap-3 bg-amber-100 text-amber-800 px-4 py-3 rounded-lg shadow-sm max-w-md'>
                   <AlertCircle className='w-5 h-5 mt-0.5' />
                   <div>
-                    <h1 className='text-base font-semibold'>{error.message}</h1>
-                    <p className='text-sm mt-1'>
-                      You must be logged in or provide your own API key to
-                      process this request.
-                    </p>
+                    <h1 className='text-base font-semibold'>{error.name}</h1>
+                    <p className='text-sm mt-1'>{error.message}</p>
                   </div>
                 </div>
               </div>

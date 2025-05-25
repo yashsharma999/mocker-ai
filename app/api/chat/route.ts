@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
 import Sandbox from '@e2b/code-interpreter';
 import { generateObject, streamText } from 'ai';
 import { z } from 'zod';
@@ -7,18 +7,29 @@ import { put } from '@vercel/blob';
 import { dataSchema } from '../generate_schema/schema';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
+import { createOpenAI } from '@ai-sdk/openai';
+// import { openai } from '@/lib/llmProviders';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, byok, byok_user_id } = await req.json();
+  console.log('byok_user_id', byok_user_id);
+
+  const openai = createOpenAI({
+    compatibility: 'strict', // strict mode, enable when using the OpenAI API
+    apiKey: byok ? byok : process.env.OPENAI_API_KEY,
+  });
+
   const { userId: clerkId } = await auth();
 
   const user = await prisma.user.findUnique({
-    where: { clerkId: clerkId || '' },
+    // Use BYOK user ID if provided, otherwise use the authenticated user's ID
+    where: { clerkId: byok_user_id ? byok_user_id : clerkId || '' },
     select: { id: true },
   });
+
   const userId = user?.id;
 
   if (!userId) {
@@ -30,7 +41,9 @@ export async function POST(req: Request) {
     where: { userId: userId },
     select: { amount: true },
   });
-  if (!credits || credits.amount <= 0) {
+  if (byok_user_id) {
+    console.log(`BYOK user, no credit limits`);
+  } else if (!credits || credits.amount <= 0) {
     return new Response('Insufficient credits, please contact support.', {
       status: 402,
     });

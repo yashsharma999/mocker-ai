@@ -18,6 +18,7 @@ import CopyUrl from './copy-url';
 import useSWR from 'swr';
 import { Skeleton } from './ui/skeleton';
 import { useAuth } from '@clerk/nextjs';
+import useByok from '@/lib/hooks/useByok';
 
 interface DataSource {
   id: string;
@@ -30,8 +31,12 @@ interface DataSource {
 
 export default function DataSources() {
   const { userId } = useAuth();
+  const { byokUserId } = useByok();
+
   const { data, error, isLoading } = useSWR(
-    `/api/datasource?clerkId=${userId}`,
+    byokUserId || userId
+      ? `/api/datasource?clerkId=${byokUserId || userId}`
+      : null,
     fetcher
   );
 
