@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LogIn, Settings } from 'lucide-react';
+import { Crown, LogIn, Settings } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,7 @@ import {
 import { CustomKeyManager } from './key-manager';
 import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
 import CurrentCredits from './current_credits';
+import Link from 'next/link';
 
 export default function SettingsToggle() {
   const { isSignedIn } = useUser();
@@ -36,6 +37,14 @@ export default function SettingsToggle() {
             <LogIn className='h-2 w-2' />
             {isSignedIn ? <SignOutButton /> : <SignInButton mode='modal' />}
           </DropdownMenuItem>
+          <Link href='/plans'>
+            <DropdownMenuItem>
+              <span className='flex items-center gap-2'>
+                <Crown className='h-2 w-2' />
+                <span>Pro</span>
+              </span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <CurrentCredits />
           </DropdownMenuItem>

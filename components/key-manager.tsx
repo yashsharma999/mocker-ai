@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { createBYOKCustomer, deleteBYOKCustomer } from '@/lib/actions';
 import { BYOK_API_KEY } from '@/lib/constants';
+import { sleep } from '@/lib/utils';
 
 export function CustomKeyManager() {
   const [key, setKey] = useState('');
@@ -66,6 +67,8 @@ export function CustomKeyManager() {
       });
     } finally {
       setLoading(false);
+      await sleep(2000); // Simulate a delay for UX
+      window.location.reload();
     }
   };
 
@@ -94,6 +97,8 @@ export function CustomKeyManager() {
       });
     } finally {
       setRemovingKeys(false);
+      await sleep(1000); // Simulate a delay for UX
+      window.location.reload();
     }
   };
 

@@ -12,7 +12,7 @@ export default function CustomApiKeyStatus() {
         <span className='relative h-3 w-3 flex items-center'>
           {/* Glowing dot */}
           <span className='absolute inline-block h-2 w-2 rounded-full bg-green-500 z-10' />
-          <span className='absolute inline-block h-3 w-3 rounded-full bg-green-400 blur-sm opacity-70 animate-pulse' />
+          <span className='absolute inline-block h-3 w-3 rounded-full bg-green-400 blur-sm opacity-70 animate-ping' />
         </span>
         <span className='text-sm text-muted-foreground font-medium'>
           Custom API Key

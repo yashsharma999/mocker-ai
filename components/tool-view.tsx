@@ -16,7 +16,11 @@ enum ToolName {
 
 export default function ToolView({ toolInvocation }: ToolViewProps) {
   if (toolInvocation.toolName === ToolName.RUN_CODE) {
-    return <RunCodeToolView code={toolInvocation?.args?.code} />;
+    if (toolInvocation?.state === 'result') {
+      return <RunCodeToolView code={toolInvocation?.args?.code} />;
+    } else {
+      return <div>Generating Python Code...</div>;
+    }
   }
   if (toolInvocation.toolName === 'generateSchema') {
     if (toolInvocation?.state === 'result') {

@@ -1,5 +1,6 @@
 'use client';
 
+import FileFormat, { PreferedFileFormat } from '@/components/chat/file-format';
 import MessageList from '@/components/chat/message_list';
 import CustomApiKeyStatus from '@/components/custom-key-badge';
 import NewChatButton from '@/components/new-chat';
@@ -12,11 +13,14 @@ import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { useAuth } from '@clerk/nextjs';
 import { AlertCircle, Send } from 'lucide-react';
+import { useState } from 'react';
 import { mutate } from 'swr';
 
 export default function Home() {
   const { userId } = useAuth();
   const { byokKey, byokUserId } = useByok();
+  const [preferedFileFormat, setPreferedFileFormat] =
+    useState<PreferedFileFormat>('');
 
   const { messages, input, setInput, handleInputChange, handleSubmit, error } =
     useChat({
@@ -33,10 +37,15 @@ export default function Home() {
       body: {
         byok: byokKey,
         byok_user_id: byokUserId,
+        file_format: preferedFileFormat,
       },
     });
 
   const generating = messages.length > 0;
+
+  const handleFileFormatChange = (format: PreferedFileFormat) => {
+    setPreferedFileFormat(format);
+  };
 
   return (
     <div>
@@ -97,7 +106,8 @@ export default function Home() {
               value={input}
               onChange={handleInputChange}
             />
-            <div className='p-2 flex justify-end'>
+            <div className='p-2 flex justify-between items-center'>
+              <FileFormat handleFileFormatChange={handleFileFormatChange} />
               <Button
                 type='submit'
                 className='cursor-pointer'

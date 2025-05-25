@@ -9,7 +9,25 @@ const MessageBlock = memo(({ message }: { message: Message }) => {
       message?.parts?.map((part, i) => {
         switch (part.type) {
           case 'text':
-            return <Markdown key={`${message.id}-${i}`}>{part.text}</Markdown>;
+            return (
+              <Markdown
+                key={`${message.id}-${i}`}
+                components={{
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-blue-500 hover:text-blue-600 underline'
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {part.text}
+              </Markdown>
+            );
           case 'tool-invocation':
             return (
               <ToolView

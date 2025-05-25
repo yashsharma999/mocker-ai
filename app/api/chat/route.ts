@@ -8,14 +8,15 @@ import { dataSchema } from '../generate_schema/schema';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 import { createOpenAI } from '@ai-sdk/openai';
+import { fileFormatString } from '@/lib/utils';
 // import { openai } from '@/lib/llmProviders';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, byok, byok_user_id } = await req.json();
-  console.log('byok_user_id', byok_user_id);
+  const { messages, byok, byok_user_id, file_format } = await req.json();
+  console.log('file_format', file_format);
 
   const openai = createOpenAI({
     compatibility: 'strict', // strict mode, enable when using the OpenAI API
@@ -52,7 +53,19 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai('gpt-4o-mini'),
     system: SystemPrompt,
-    messages,
+    messages: [
+      {
+        role: 'system',
+        content: SystemPrompt,
+      },
+      {
+        role: 'user',
+        content: `I want to store the generated data in ${fileFormatString(
+          file_format
+        )}.`,
+      },
+      ...messages,
+    ],
     tools: {
       generateSchema: {
         description: 'Generate a data schema for the given user input',
@@ -166,14 +179,16 @@ export async function POST(req: Request) {
 
 const SystemPrompt = `
 You are an expert data mocking assistant.
-Your task is to generate a data schema and then generate python code to mock data for the given user input.
+Your task is to generate a extensive data schema and then generate python code to mock data for the given user input.
 The data generated should be as realistic as possible, use the Fake data library to generate the data.
 
 ## CRITICAL : Do not show the generated schema to the user.
 
 Ask the user for confirmation on the generated schema before proceeding to generate the code.
-Also, ask the user to confirm the type of file they want to store the generated data in (CSV or Excel).
+Also, ask the user to confirm the type of file they want to store the generated data in (CSV, Excel, or PostgreSQL), if they have already not specified a file format.
 
 If the user confirms, generate and execute the code block to mock data and store the generated data in the given file formats.
 ### IMPORTANT: Upload all the files to Vercel Blob storage and return the respective download URLs
+
+## CRITICAL : Do not show the generated download links as text to the user.
 `;
