@@ -8,6 +8,7 @@ import SettingsToggle from '@/components/settings';
 import { Toaster } from '@/components/ui/sonner';
 import { ClerkProvider, UserButton } from '@clerk/nextjs';
 import ModeToggle from '@/components/theme-toggle';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -39,7 +40,10 @@ export default function RootLayout({
                 <UserButton />
               </div>
               <SettingsToggle />
-              <main className='w-full'>{children}</main>
+              <main className='w-full'>
+                {children}
+                <Analytics />
+              </main>
               <Toaster />
               <SidebarTrigger size={'lg'} />
               <AppSidebar />

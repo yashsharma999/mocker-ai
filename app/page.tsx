@@ -105,6 +105,12 @@ export default function Home() {
               }}
               value={input}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e as any);
+                }
+              }}
             />
             <div className='p-2 flex justify-between items-center'>
               <FileFormat handleFileFormatChange={handleFileFormatChange} />
